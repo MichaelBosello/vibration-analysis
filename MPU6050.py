@@ -30,6 +30,8 @@ class MPU6050Data:
     self.gx = 0
     self.gy = 0
     self.gz = 0
+  def __str__(self):
+    return 'x:' + str(self.gx) + ' y:' + str(self.gy) + ' z:' + str(self.gz)
 
 
 class MPU6050:
@@ -159,7 +161,7 @@ class MPU6050:
   def setup(self):
     # Reset all registers
     # DEVICE_RESET bit7 (When set to 1, this bit resets all internal registers to their default values.)
-    self.i2c.write8(self.MPU6050_RA_PWR_MGMT_1, 0x80)
+    bus.write_byte_data(self.MPU6050_ADDRESS, self.MPU6050_RA_PWR_MGMT_1, 0x80)
 
     self.set_sample_rate(1000)
     self.set_g_resolution(2)
@@ -205,7 +207,7 @@ class MPU6050:
 
   def convertData(self, list_data):
     # '>' = big-endian, 'h' = short
-    short_data = struct.unpack(">hhh", buffer(bytearray(list_data)))
+    short_data = struct.unpack(">hhh", memoryview(bytearray(list_data)))
     acc_data = MPU6050Data()
 
     acc_data.Gx = short_data[0] * self.acceleration_factor
