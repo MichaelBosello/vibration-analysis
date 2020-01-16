@@ -36,6 +36,10 @@ class MPU6050:
   ACCEL_BYTES = 6
 
   MPU6050_ADDRESS = 0x68  # default I2C Address
+  
+  X_OFFSET = -0.0043
+  Y_OFFSET = 0.0099
+  Z_OFFSET = 0.4319
 
   # register definition
   # [7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
@@ -208,9 +212,9 @@ class MPU6050:
     short_data = struct.unpack(">hhh", memoryview(bytearray(list_data)))
     acc_data = MPU6050Data()
 
-    acc_data.gx = short_data[0] * self.acceleration_factor
-    acc_data.gy = short_data[1] * self.acceleration_factor
-    acc_data.gz = short_data[2] * self.acceleration_factor
+    acc_data.gx = short_data[0] * self.acceleration_factor + self.X_OFFSET
+    acc_data.gy = short_data[1] * self.acceleration_factor + self.Y_OFFSET
+    acc_data.gz = short_data[2] * self.acceleration_factor + self.Z_OFFSET
 
     return acc_data
 

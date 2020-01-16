@@ -46,5 +46,15 @@ if __name__ == "__main__":
   fft = accelerometer_ftt()
   samples = fft.get_samples()
   print(len(samples))
-  for i in range(0, 100):
-    print(str(samples[i]))
+  avg_x = 0.0
+  avg_y = 0.0
+  avg_z = 0.0
+  for i in range(0, len(samples)):
+    #print(str(samples[i]))
+    avg_x += samples[i].gx
+    avg_y += samples[i].gy
+    avg_z += samples[i].gz
+  avg_x /= len(samples)
+  avg_y /= len(samples)
+  avg_z /= len(samples)
+  print("avg x: " + str(avg_x) + " avg y: " + str(avg_y) + "avg z: " + str(avg_z))
