@@ -22,7 +22,7 @@ class accelerometer_ftt:
         # check overflow flag
         if (status & 0x10) == 0x10 :
           print("Overflow Error! Quitting.\n")
-          #quit()
+          quit()
         # check data ready flag
         if (status & 0x01) == 0x01:
           values.extend(self.mpu6050.read_data_from_fifo())
@@ -33,7 +33,7 @@ class accelerometer_ftt:
     fftdata = []
     for i in range (self.TARGET_SAMPLE_NUM):
       sample = values[i*ACCEL_BYTES : i*ACCEL_BYTES+ACCEL_BYTES]
-      converted_sample = self.mpu6050.convertData(sample)
+      converted_sample = self.mpu6050.convert_data(sample)
       fftdata.append(converted_sample)
 
     self.mpu6050.enable_fifo(False)

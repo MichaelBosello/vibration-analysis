@@ -20,9 +20,7 @@ import smbus
 import struct
 import math
 
-
 bus = smbus.SMBus(1)
-
 
 class MPU6050Data:
 
@@ -163,9 +161,6 @@ class MPU6050:
     # DEVICE_RESET bit7 (When set to 1, this bit resets all internal registers to their default values.)
     bus.write_byte_data(self.MPU6050_ADDRESS, self.MPU6050_RA_PWR_MGMT_1, 0x80)
 
-    self.set_sample_rate(1000)
-    self.set_g_resolution(2)
-
     # Upon power up, the MPU-60X0 clock source defaults to the internal oscillator. However, it is highly
     # recommended that the device be configured to use one of the gyroscopes (or an external clock
     # source) as the clock reference for improved stability.
@@ -178,13 +173,16 @@ class MPU6050:
     # FIFO_OFLOW_EN bit4 (When set to 1, this bit enables a FIFO buffer overflow to generate an interrupt.)
     # DATA_RDY_EN bit0 (When set to 1, this bit enables the Data Ready interrupt.)
     bus.write_byte_data(self.MPU6050_ADDRESS, self.MPU6050_RA_INT_ENABLE, 0b00010001)
+    
+    self.set_g_resolution(2)
+    self.set_sample_rate(1000.0)
 
   def read_data_from_fifo(self):
     if self.fifo_count == 0:
       self.fifo_count = self.read_fifo_count()
     # max block transfer in i2c is 32 bytes including the address
     # accelerometer data => 3 short = 6 bytes  => 31 / 6 = 5
-    # then it will be 30
+    # then max transfer will be 6*5 = 30
     if (self.fifo_count > 30):
       n_count = 30
     else:
@@ -205,14 +203,14 @@ class MPU6050:
     # The bit clears to 0 after the register has been read.
     return bus.read_byte_data(self.MPU6050_ADDRESS, self.MPU6050_RA_INT_STATUS)
 
-  def convertData(self, list_data):
+  def convert_data(self, list_data):
     # '>' = big-endian, 'h' = short
     short_data = struct.unpack(">hhh", memoryview(bytearray(list_data)))
     acc_data = MPU6050Data()
 
-    acc_data.Gx = short_data[0] * self.acceleration_factor
-    acc_data.Gy = short_data[1] * self.acceleration_factor
-    acc_data.Gz = short_data[2] * self.acceleration_factor
+    acc_data.gx = short_data[0] * self.acceleration_factor
+    acc_data.gy = short_data[1] * self.acceleration_factor
+    acc_data.gz = short_data[2] * self.acceleration_factor
 
     return acc_data
 
