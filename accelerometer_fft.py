@@ -1,11 +1,13 @@
-import MPU6050
+from MPU6050 import MPU6050, MPU6050Data
 import time
+import numpy as np
+import matplotlib.pyplot as plt
 
 class accelerometer_ftt:
   TARGET_SAMPLE_NUM = 2048
 
   def __init__(self):
-    self.mpu6050 = MPU6050.MPU6050()
+    self.mpu6050 = MPU6050()
     time.sleep(0.01)
 
   def get_samples(self):
@@ -39,8 +41,20 @@ class accelerometer_ftt:
     self.mpu6050.enable_fifo(False)
     return fftdata
 
-    def fft(self, data):
-      pass
+  def fft(self, sample):
+    data = np.fft.rfft(sample)/self.TARGET_SAMPLE_NUM
+    freq = np.fft.rfftfreq(self.TARGET_SAMPLE_NUM, d=1./self.mpu6050.sample_rate)
+    return data, freq
+
+  def plot_fft(self, data, freq):
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Magnitude |ax|')
+    plt.grid(True)
+
+    data[0] = 0
+    plt.plot(freq, abs(data))
+    plt.xlim([-5,505]) # Nyquist frequency = 500 (-5 +5 for visualization purpose)
+    plt.show()
 
 if __name__ == "__main__":
   fft = accelerometer_ftt()
@@ -58,3 +72,8 @@ if __name__ == "__main__":
   avg_y /= len(samples)
   avg_z /= len(samples)
   print("avg x: " + str(avg_x) + " avg y: " + str(avg_y) + "avg z: " + str(avg_z))
+
+  # plot of fft on gx
+  x_samples = MPU6050Data.vectorize_gx(samples)
+  fft_data, fft_freq = fft.fft(x_samples)
+  fft.plot_fft(fft_data, fft_freq)

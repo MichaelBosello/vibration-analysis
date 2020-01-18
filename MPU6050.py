@@ -20,6 +20,7 @@ import smbus
 import struct
 import math
 import time
+import numpy as np
 
 bus = smbus.SMBus(1)
 
@@ -29,6 +30,12 @@ class MPU6050Data:
     self.gx = 0
     self.gy = 0
     self.gz = 0
+
+  # takes an array of 'MPU6050Data' and returns an array composed by the gx property of each object
+  vectorize_gx = np.vectorize(lambda sample: sample.gx)
+  vectorize_gy = np.vectorize(lambda sample: sample.gy)
+  vectorize_gz = np.vectorize(lambda sample: sample.gz)
+
   def __str__(self):
     return 'x:' + str(self.gx) + ' y:' + str(self.gy) + ' z:' + str(self.gz)
 
