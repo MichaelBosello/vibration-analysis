@@ -19,6 +19,7 @@
 import smbus
 import struct
 import math
+import time
 
 bus = smbus.SMBus(1)
 
@@ -39,7 +40,7 @@ class MPU6050:
   
   X_OFFSET = -0.0043
   Y_OFFSET = 0.0099
-  Z_OFFSET = 0.4319
+  Z_OFFSET = -0.5681
 
   # register definition
   # [7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
@@ -164,7 +165,7 @@ class MPU6050:
     # Reset all registers
     # DEVICE_RESET bit7 (When set to 1, this bit resets all internal registers to their default values.)
     bus.write_byte_data(self.MPU6050_ADDRESS, self.MPU6050_RA_PWR_MGMT_1, 0x80)
-
+    time.sleep(0.01)
     # Upon power up, the MPU-60X0 clock source defaults to the internal oscillator. However, it is highly
     # recommended that the device be configured to use one of the gyroscopes (or an external clock
     # source) as the clock reference for improved stability.
@@ -172,12 +173,12 @@ class MPU6050:
     # sets clock source to gyro reference PLL (Phase-locked loop)
     # CLKSEL bit[2:0] ~ CLKSEL=1 => PLL with X axis gyroscope reference
     bus.write_byte_data(self.MPU6050_ADDRESS, self.MPU6050_RA_PWR_MGMT_1, 0b00000010)
-
+    time.sleep(0.01)
     # This register enables interrupt generation by interrupt sources.
     # FIFO_OFLOW_EN bit4 (When set to 1, this bit enables a FIFO buffer overflow to generate an interrupt.)
     # DATA_RDY_EN bit0 (When set to 1, this bit enables the Data Ready interrupt.)
     bus.write_byte_data(self.MPU6050_ADDRESS, self.MPU6050_RA_INT_ENABLE, 0b00010001)
-    
+    time.sleep(0.01)
     self.set_g_resolution(2)
     self.set_sample_rate(1000.0)
 
