@@ -16,14 +16,23 @@ Pin connection:
 ## Raspberry setup
 
 1. Turn on I2C communication
-> `sudo raspi-config`
 
-> Interfacing Options
+        sudo raspi-config
 
-> I2C
+    >Interfacing Options
+
+    >I2C
 
 2. Verify I2C connection
 
-`sudo i2cdetect -y 1`
+        sudo i2cdetect -y 1
 
-If the gyroscope is properly connected, you will see it at address 68 (default)
+    If the gyroscope is properly connected, you will see it at address 68 (default)
+
+3. set I2C Bus Speed
+
+        sudo nano /boot/config.txt
+
+    Find the line containing “dtparam=i2c_arm=on” and change to:
+
+    > dtparam=i2c_arm=on,i2c_arm_baudrate=400000
