@@ -40,6 +40,12 @@ Pin connection:
 ## AWS IoT Setup
 
 1. Create a new Thing named 'VibrationAnalyzer'
+    
+    During the setup, allow the following topics in the device policy:
+    
+    things/VibrationAnalyzer/shadow/
+
+    topic/vibration_analysis
 
 2. Download its certificates and put them in the dir *./cert*
 
