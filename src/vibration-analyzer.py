@@ -70,11 +70,11 @@ logger.addHandler(streamHandler)
 
 client = None
 if useWebsocket:
-    client = AWSIoTMQTTClient(clientId, useWebsocket=True)
+    client = AWSIoTMQTTClient(clientId + "MQTT", useWebsocket=True)
     client.configureEndpoint(host, port)
     client.configureCredentials(rootCAPath)
 else:
-    client = AWSIoTMQTTClient(clientId)
+    client = AWSIoTMQTTClient(clientId + "MQTT")
     client.configureEndpoint(host, port)
     client.configureCredentials(rootCAPath, privateKeyPath, certificatePath)
 
@@ -131,16 +131,27 @@ class DeviceAnalyzerShadow:
     def __init__(self, deviceShadowInstance):
         self.deviceShadowInstance = deviceShadowInstance
         self.cycle_hour = 0
-        self.cycle_minute = 1
+        self.cycle_minute = 3
+        initial_state = { "cycle": {
+            "hour": 0,
+            "minute": 3
+          }
+        }
+        initialStatePayload = '{"state":{"reported":' + json.dumps(initial_state) + '}}'
+        self.deviceShadowInstance.shadowUpdate(initialStatePayload, None, 5)
 
     def ShadowCallback_Delta(self, payload, responseStatus, token):
         payloadDict = json.loads(payload)
-        if (payloadDict["cycle"]["hour"] >= 0 and payloadDict["cycle"]["minute"] >= 0 and
-          (payloadDict["cycle"]["hour"] > 0 or payloadDict["cycle"]["minute"] > 0)):
-            shadow.cycle_hour = payloadDict["cycle"]["hour"]
-            shadow.cycle_minute = payloadDict["cycle"]["minute"]
-            deltaPayload = '{"state":{"reported":' + payload + '}}'
+        print("Received shadow update request: " + str(payloadDict))
+        hour = payloadDict["state"]["cycle"].get("hour", 0) # 0 if not present
+        minute = payloadDict["state"]["cycle"].get("minute", 0)
+        if (hour >= 0 and minute >= 0 and (hour > 0 or minute > 0)):
+            shadow.cycle_hour = hour
+            shadow.cycle_minute = minute
+            new_state = { "cycle": {"hour": hour, "minute": minute } }
+            deltaPayload = '{"state":{"reported":' + json.dumps(new_state) + '}}'
             self.deviceShadowInstance.shadowUpdate(deltaPayload, None, 5) # payload, callback, timeout to invalidate request
+            print("Updated shadow with new cycle (h: " + str(hour) + " min: " + str(minute) + ")")
 
 # Create a deviceShadow with persistent subscription
 deviceShadowHandler = shadowClient.createShadowHandlerWithName(thingName, True)
@@ -154,7 +165,9 @@ deviceShadowHandler.shadowRegisterDeltaCallback(shadow.ShadowCallback_Delta)
 ###################################
 
 def sendFTT():
+    print("getting samples")
     samples = fft.get_samples()
+    print("computing fft")
     x_samples = MPU6050Data.vectorize_gx(samples)
     y_samples = MPU6050Data.vectorize_gy(samples)
     z_samples = MPU6050Data.vectorize_gz(samples)
@@ -169,7 +182,7 @@ def sendFTT():
     })
 
     cycle_wait = shadow.cycle_minute * 60 + shadow.cycle_hour * 3600
-
+    print("next fft at " + str(cycle_wait))
     client.publishAsync(topic, json_payload, 0) # QoS 0
     threading.Timer(cycle_wait, sendFTT).start()
 
