@@ -11,11 +11,12 @@ fi
 if [ ! -d ./aws-iot-device-sdk-python ]; then
   printf "\nInstalling AWS SDK...\n"
   git clone https://github.com/aws/aws-iot-device-sdk-python.git
-  pushd aws-iot-device-sdk-python
-  python setup.py install
-  popd
+  cd aws-iot-device-sdk-python
+  python3 setup.py install
+  cd ../
 fi
 
 # run app using certificates downloaded in package
 printf "\nRunning application...\n"
-python src/VibrationAnalyzer -e asq2wj9qjgimw-ats.iot.eu-west-1.amazonaws.com -r ./cert/root-CA.crt -c ./cert/VibrationAnalyzer.cert.pem -k ./cert/VibrationAnalyzer.private.key
+#python3 src/vibration-analyzer.py -e [YOUR-ENDPOINT] -r ./cert/root-CA.crt -c ./cert/[YOUR-DEVICE-NAME].cert.pem -k ./cert/[YOUR-DEVICE-NAME].private.key
+python3 src/vibration-analyzer.py -e asq2wj9qjgimw-ats.iot.eu-west-1.amazonaws.com -r ./cert/root-CA.crt -c ./cert/VibrationAnalyzer.cert.pem -k ./cert/VibrationAnalyzer.private.key

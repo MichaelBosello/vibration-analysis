@@ -41,8 +41,10 @@ class accelerometer_ftt:
     self.mpu6050.enable_fifo(False)
     return fftdata
 
-  def fft(self, sample):
+  def fft(self, sample, onlydata=False):
     data = np.fft.rfft(sample)/self.TARGET_SAMPLE_NUM
+    if onlydata:
+      return data
     freq = np.fft.rfftfreq(self.TARGET_SAMPLE_NUM, d=1./self.mpu6050.sample_rate)
     return data, freq
 
@@ -76,4 +78,5 @@ if __name__ == "__main__":
   # plot of fft on gx
   x_samples = MPU6050Data.vectorize_gx(samples)
   fft_data, fft_freq = fft.fft(x_samples)
+  print(fft_data)
   fft.plot_fft(fft_data, fft_freq)

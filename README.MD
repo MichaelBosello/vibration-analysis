@@ -36,3 +36,27 @@ Pin connection:
     Find the line containing “dtparam=i2c_arm=on” and change to:
 
     > dtparam=i2c_arm=on,i2c_arm_baudrate=400000
+
+## AWS IoT Setup
+
+1. Create a new Thing named 'VibrationAnalyzer'
+
+2. Download its certificates and put them in the dir *./cert*
+
+3. Change the endpoint in _start.sh_ to your AWS endpoint (the parameter *-e*)
+
+## Run
+
+To run the complete application with the AWS part:
+
+1. Make script executable:
+
+        chmod 777
+
+2. Run the script:
+
+        sudo ./start.sh
+
+To run a local test that displays the average g and the fft plot:
+
+        sudo python3 src/accelerometer_ftt.py
