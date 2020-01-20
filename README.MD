@@ -39,6 +39,8 @@ Pin connection:
 
 ## AWS IoT Setup
 
+Go to the AWS console, click *IoT Core*
+
 1. Create a new Thing named 'VibrationAnalyzer'
     
     During the setup, allow the following topics in the device policy:
@@ -50,6 +52,20 @@ Pin connection:
 2. Download its certificates and put them in the dir *./cert*
 
 3. Change the endpoint in _start.sh_ to your AWS endpoint (the parameter *-e*)
+
+4. [optional] Create a rule to store analysis to a dynamoDB table
+
+    In AWS Iot -> **Act** -> **Create new rule** ->
+
+    > *Rule query statement*: SELECT * FROM 'vibration_analysis'
+
+    **Add action** -> Select **Insert a message into a DynamoDB table** -> select or create a new DynamoDB table ->
+    
+    >**Partition key value**: ${id}
+    
+    >**Sort key value**: ${id}
+
+    Put a role, fill other params as you see fit -> **Add action** -> **Create rule**
 
 ## Run
 
