@@ -9,6 +9,7 @@ import time
 import threading
 import argparse
 import json
+import uuid
 
 from accelerometer_fft import accelerometer_ftt
 from MPU6050 import MPU6050Data
@@ -176,6 +177,7 @@ def sendFTT():
     z_fft = abs(fft.fft(z_samples, True))
 
     json_payload = json.dumps({
+      "id": str(uuid.uuid4()),
       "fft_x": x_fft.tolist(),
       "fft_y": y_fft.tolist(),
       "fft_z": z_fft.tolist()
