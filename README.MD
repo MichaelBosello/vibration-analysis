@@ -73,7 +73,7 @@ To run the complete application with the AWS part:
 
 1. Make script executable:
 
-        chmod 777
+        chmod 777 start.sh
 
 2. Run the script:
 
