@@ -66,37 +66,6 @@ streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
 ###################################
-# Init AWSIoTMQTTClient
-###################################
-
-client = None
-if useWebsocket:
-    client = AWSIoTMQTTClient(clientId + "MQTT", useWebsocket=True)
-    client.configureEndpoint(host, port)
-    client.configureCredentials(rootCAPath)
-else:
-    client = AWSIoTMQTTClient(clientId + "MQTT")
-    client.configureEndpoint(host, port)
-    client.configureCredentials(rootCAPath, privateKeyPath, certificatePath)
-
-# AWSIoTMQTTClient connection configuration
-# Configure the auto-reconnect backoff to start with 1 second and use 32 seconds as a maximum back off time.
-# Connection over 20 seconds is considered stable and will reset the back off time back to its base.
-client.configureAutoReconnectBackoffTime(1, 32, 20)
-# Used to configure the queue size and drop behavior for the offline requests queueing.
-client.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
-# Used to configure the draining speed to clear up the queued requests when the connection is back.
-client.configureDrainingFrequency(2)  # 2 requests/second
-# Used to configure the time in seconds to wait for a CONNACK or a disconnect to complete. 
-client.configureConnectDisconnectTimeout(10)  # 10 sec
-# Used to configure the timeout in seconds for MQTT QoS 1 publish, subscribe and unsubscribe. 
-#myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
-
-# Connect and subscribe to AWS IoT
-client.connect()
-time.sleep(1)
-
-###################################
 # Init AWSIoTMQTTShadowClient
 ###################################
 
@@ -116,9 +85,11 @@ else:
 shadowClient.configureAutoReconnectBackoffTime(1, 32, 20)
 # Used to configure the time in seconds to wait for a CONNACK or a disconnect to complete. 
 shadowClient.configureConnectDisconnectTimeout(10)  # 10 sec
-shadowClient.configureMQTTOperationTimeout(5)  # 5 sec
+# Used to configure the timeout in seconds for MQTT QoS 1 publish, subscribe and unsubscribe. 
+#shadowClient.configureMQTTOperationTimeout(5)  # 5 sec
 
 shadowClient.connect()
+client = shadowClient.getMQTTConnection()
 time.sleep(1)
 
 
