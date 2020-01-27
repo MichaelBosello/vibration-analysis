@@ -18,5 +18,5 @@ fi
 
 # run app using certificates downloaded in package
 printf "\nRunning application...\n"
-#python3 src/vibration-analyzer.py -e [YOUR-ENDPOINT] -r ./cert/root-CA.crt -c ./cert/[YOUR-DEVICE-NAME].cert.pem -k ./cert/[YOUR-DEVICE-NAME].private.key
-python3 src/vibration-analyzer.py -e asq2wj9qjgimw-ats.iot.eu-west-1.amazonaws.com -r ./cert/root-CA.crt -c ./cert/VibrationAnalyzer.cert.pem -k ./cert/VibrationAnalyzer.private.key
+#python3 src/vibration_analyzer.py -e [YOUR-ENDPOINT] -r ./cert/root-CA.crt -c ./cert/[YOUR-DEVICE-NAME].cert.pem -k ./cert/[YOUR-DEVICE-NAME].private.key
+python3 src/vibration_analyzer.py -e asq2wj9qjgimw-ats.iot.eu-west-1.amazonaws.com -r ./cert/root-CA.crt -c ./cert/VibrationAnalyzer.cert.pem -k ./cert/VibrationAnalyzer.private.key
