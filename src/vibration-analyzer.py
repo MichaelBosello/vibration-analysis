@@ -86,7 +86,7 @@ shadowClient.configureAutoReconnectBackoffTime(1, 32, 20)
 # Used to configure the time in seconds to wait for a CONNACK or a disconnect to complete. 
 shadowClient.configureConnectDisconnectTimeout(10)  # 10 sec
 # Used to configure the timeout in seconds for MQTT QoS 1 publish, subscribe and unsubscribe. 
-#shadowClient.configureMQTTOperationTimeout(5)  # 5 sec
+shadowClient.configureMQTTOperationTimeout(5)  # 5 sec
 
 shadowClient.connect()
 client = shadowClient.getMQTTConnection()
@@ -156,7 +156,7 @@ def sendFTT():
 
     cycle_wait = shadow.cycle_minute * 60 + shadow.cycle_hour * 3600
     print("next fft at " + str(cycle_wait))
-    client.publishAsync(topic, json_payload, 0) # QoS 0
+    client.publishAsync(topic, json_payload, 1) # QoS 1
     threading.Timer(cycle_wait, sendFTT).start()
 
 fft = accelerometer_ftt()
