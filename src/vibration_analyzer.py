@@ -90,6 +90,8 @@ shadowClient.configureMQTTOperationTimeout(5)  # 5 sec
 
 shadowClient.connect()
 client = shadowClient.getMQTTConnection()
+# Used to configure the queue size and drop behavior for the offline requests queueing.
+client.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
 time.sleep(1)
 
 
@@ -100,6 +102,16 @@ time.sleep(1)
 ###################################
 
 class DeviceAnalyzerShadow:
+    def customShadowCallback_Update(self, payload, responseStatus, token):
+        if responseStatus == "timeout":
+            print("Update request " + token + " time out!")
+            self.sendReportedState()
+        if responseStatus == "accepted":
+            print("Update request with token: " + token + " accepted!")
+        if responseStatus == "rejected":
+            print("Update request " + token + " rejected!")
+            self.sendReportedState()
+
     def __init__(self, deviceShadowInstance):
         self.deviceShadowInstance = deviceShadowInstance
         self.cycle_hour = 0
@@ -110,7 +122,7 @@ class DeviceAnalyzerShadow:
           }
         }
         initialStatePayload = '{"state":{"reported":' + json.dumps(initial_state) + '}}'
-        self.deviceShadowInstance.shadowUpdate(initialStatePayload, None, 5)
+        self.deviceShadowInstance.shadowUpdate(initialStatePayload, self.customShadowCallback_Update, 5)# payload, callback, timeout to invalidate request
 
     def ShadowCallback_Delta(self, payload, responseStatus, token):
         payloadDict = json.loads(payload)
@@ -118,12 +130,15 @@ class DeviceAnalyzerShadow:
         hour = payloadDict["state"]["cycle"].get("hour", 0) # 0 if not present
         minute = payloadDict["state"]["cycle"].get("minute", 0)
         if (hour >= 0 and minute >= 0 and (hour > 0 or minute > 0)):
-            shadow.cycle_hour = hour
-            shadow.cycle_minute = minute
-            new_state = { "cycle": {"hour": hour, "minute": minute } }
-            deltaPayload = '{"state":{"reported":' + json.dumps(new_state) + '}}'
-            self.deviceShadowInstance.shadowUpdate(deltaPayload, None, 5) # payload, callback, timeout to invalidate request
+            self.cycle_hour = hour
+            self.cycle_minute = minute
+            self.sendReportedState()
             print("Updated shadow with new cycle (h: " + str(hour) + " min: " + str(minute) + ")")
+
+    def sendReportedState(self):
+        new_state = { "cycle": {"hour": self.cycle_hour, "minute": self.cycle_minute } }
+        deltaPayload = '{"state":{"reported":' + json.dumps(new_state) + '}}'
+        self.deviceShadowInstance.shadowUpdate(deltaPayload, self.customShadowCallback_Update, 5)# payload, callback, timeout to invalidate request
 
 # Create a deviceShadow with persistent subscription
 deviceShadowHandler = shadowClient.createShadowHandlerWithName(thingName, True)
