@@ -247,11 +247,11 @@ class MPU6050:
 
   def enable_fifo(self, flag=True):
     if flag:
-      self.reset_fifo()
       # We want only the accel data. ACCEL_FIFO_EN = bit3
       # ACCEL_FIFO_EN When set to 1, this bit enables ACCEL_XOUT_H, ACCEL_XOUT_L,
       # ACCEL_YOUT_H, ACCEL_YOUT_L, ACCEL_ZOUT_H, and ACCEL_ZOUT_L to be written into the FIFO buffer.
       bus.write_byte_data(self.MPU6050_ADDRESS, self.MPU6050_RA_FIFO_EN, 0b00001000)
+      self.reset_fifo()
     else:
       # shut off the feed in the FIFO.
       bus.write_byte_data(self.MPU6050_ADDRESS, self.MPU6050_RA_FIFO_EN, 0)
