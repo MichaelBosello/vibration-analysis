@@ -102,7 +102,7 @@ time.sleep(1)
 ###################################
 
 class DeviceAnalyzerShadow:
-    def customShadowCallback_Update(self, payload, responseStatus, token):
+    def shadowCallback_Update(self, payload, responseStatus, token):
         if responseStatus == "timeout":
             print("Update request " + token + " time out!")
             self.sendReportedState()
@@ -122,9 +122,9 @@ class DeviceAnalyzerShadow:
           }
         }
         initialStatePayload = '{"state":{"reported":' + json.dumps(initial_state) + '}}'
-        self.deviceShadowInstance.shadowUpdate(initialStatePayload, self.customShadowCallback_Update, 5)# payload, callback, timeout to invalidate request
+        self.deviceShadowInstance.shadowUpdate(initialStatePayload, self.shadowCallback_Update, 5)# payload, callback, timeout to invalidate request
 
-    def ShadowCallback_Delta(self, payload, responseStatus, token):
+    def shadowCallback_Delta(self, payload, responseStatus, token):
         payloadDict = json.loads(payload)
         print("Received shadow update request: " + str(payloadDict))
         hour = payloadDict["state"]["cycle"].get("hour", 0) # 0 if not present
@@ -138,13 +138,13 @@ class DeviceAnalyzerShadow:
     def sendReportedState(self):
         new_state = { "cycle": {"hour": self.cycle_hour, "minute": self.cycle_minute } }
         deltaPayload = '{"state":{"reported":' + json.dumps(new_state) + '}}'
-        self.deviceShadowInstance.shadowUpdate(deltaPayload, self.customShadowCallback_Update, 5)# payload, callback, timeout to invalidate request
+        self.deviceShadowInstance.shadowUpdate(deltaPayload, self.shadowCallback_Update, 5)# payload, callback, timeout to invalidate request
 
 # Create a deviceShadow with persistent subscription
 deviceShadowHandler = shadowClient.createShadowHandlerWithName(thingName, True)
 shadow = DeviceAnalyzerShadow(deviceShadowHandler)
 # Listen on deltas
-deviceShadowHandler.shadowRegisterDeltaCallback(shadow.ShadowCallback_Delta)
+deviceShadowHandler.shadowRegisterDeltaCallback(shadow.shadowCallback_Delta)
 
 ###################################
 # FTT Topic
