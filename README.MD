@@ -81,4 +81,4 @@ To run the complete application with the AWS part:
 
 To run a local test that displays the average g and the fft plot:
 
-        sudo python3 src/accelerometer_ftt.py
+        sudo python3 src/accelerometer_fft.py
